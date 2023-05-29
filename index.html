@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Comparison and Editing</title>
+  <style>
+    #image-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    #image-container img {
+      max-width: 500px;
+      height: auto;
+    }
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-weight: bold;
+      cursor: move;
+    }
+    .overlay-controls {
+      display: none;
+      position: absolute;
+      top: -20px;
+      left: 0;
+    }
+    .overlay:hover .overlay-controls {
+      display: block;
+    }
+    .overlay-controls button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="image-container">
+    <img id="image1" src="" alt="Image 1">
+    <img id="image2" src="" alt="Image 2">
+  </div>
+
+  <div id="controls">
+    <h3>Upload Images</h3>
+    <input type="file" id="image-upload1" accept="image/*" onchange="loadImage(event, 'image1')">
+    <br>
+    <input type="file" id="image-upload2" accept="image/*" onchange="loadImage(event, 'image2')">
+    <br>
+
+    <h3>Text Overlay</h3>
+    <input type="text" id="text-input" placeholder="Enter text">
+    <button onclick="addTextOverlay()">Add Overlay</button>
+    <br>
+
+    <h4>Text Size</h4>
+    <input type="range" id="text-size-slider" min="12" max="36" value="24" onchange="changeTextSize()">
+    <br>
+
+    <h4>Text Color</h4>
+    <input type="color" id="text-color-input" onchange="changeTextColor()">
+    <br>
+
+    <h3>Color Editing</h3>
+    <label for="brightness-slider">Brightness:</label>
+    <input type="range" id="brightness-slider" min="0" max="200" value="100" onchange="adjustBrightness(this.value)">
+    <br>
+    <label for="contrast-slider">Contrast:</label>
+    <input type="range" id="contrast-slider" min="0" max="200" value="100" onchange="adjustContrast(this.value)">
+  </div>
+
+  <script>
+    var activeOverlay = null;
+    var overlayCounter = 0;
+
+    function loadImage(event, imageId) {
+      var file = event.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = document.getElementById(imageId);
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function addTextOverlay() {
+      var text = document.getElementById("text-input").value;
+      if (text.trim() === "") return;
+
+      var container = document.getElementById("image-container");
+
+      var overlay = document.createElement("div");
+      overlay.id = "overlay-" + overlayCounter;
+      overlay.textContent = text;
+      overlay.className = "overlay";
+      overlay.style.fontSize = document.getElementById("text-size-slider").value + "px";
+      overlay.style.color = document.getElementById("text-color-input").value;
+
+      overlay.addEventListener("dblclick", function(e) {
+        e.target.contentEditable = true;
+        e.target.focus();
+      });
+
+      container.appendChild(overlay);
+      overlayCounter++;
+    }
+
+    function changeTextSize() {
+      if (activeOverlay) {
+        activeOverlay.style.fontSize = document.getElementById("text-size-slider").value + "px";
+      }
+    }
+
+    function changeTextColor() {
+      if (activeOverlay) {
+        activeOverlay.style.color = document.getElementById("text-color-input").value;
+      }
+    }
+
+    function adjustBrightness(value) {
+      var images = document.getElementsByTagName("img");
+      for (var i = 0; i < images.length; i++) {
+        images[i].style.filter = "brightness(" + (value / 100) + ")";
+      }
+    }
+
+    function adjustContrast(value) {
+      var images = document.getElementsByTagName("img");
+      for (var i = 0; i < images.length; i++) {
+        images[i].style.filter = "contrast(" + (value / 100) + ")";
+      }
+    }
+  </script>
+</body>
+</html>
